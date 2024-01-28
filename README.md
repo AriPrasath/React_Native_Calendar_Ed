@@ -4,9 +4,6 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 https://github.com/AriPrasath/React_Native_Calendar_Ed/assets/45748718/11dd0f7d-442e-4c16-81ec-23ee40efb2bb
 
-# APK 
-
-
 # Getting Started
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
