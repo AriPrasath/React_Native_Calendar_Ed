@@ -5,114 +5,114 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useEffect, useState } from 'react';
+import type { PropsWithChildren } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
 } from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { WeakSelector } from './src/components/weakSelector';
+import { CalendarPickerModal } from './src/components/calendarPickerModal';
+import moment from 'moment';
+import { DISABLED_DAYS, getDaysInMonth, getStartAndEndDay } from './src/core/dateWorker';
+import { DaySelectorComponent } from './src/components/daySelectorComponent';
+import { TimeTableCarousel } from './src/components/timeTableCarosuel';
 
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [dateRange, setDateRange] = useState<{ string: string }>();
+  const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
+  const [dateIndex, setDateIndex] = useState(0);
+
+  useEffect(() => {
+    let date = moment(selectedDate);
+    getDaysInMonth(
+      moment(selectedDate).month(),
+      moment(selectedDate).year(),
+      selectedDate,
+      {},
+      DISABLED_DAYS,
+      setSelectedProp = (date) => {
+        setSelectedDate(date)
+      }
+
+    );
+
+  }, []);
+
+  useEffect(() => {
+    let date = getStartAndEndDay(selectedDate) as { string: string };
+
+    setDateRange(date);
+  }, [selectedDate])
+
+  const updateStateFromPickerModal = (dateRange: { string: string }, selectedValue: string) => {
+    setDateRange(dateRange);
+    setSelectedDate(selectedValue);
+    onClose()
+  }
+
+  const onClose = () => {
+    setModalVisible(false)
+  }
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <SafeAreaView style={styles.baseContainer}>
+      <View style={{ flex: 1 }}>
+        <View style={styles.weekSelectorView}>
+          <WeakSelector selectDateModal={() => { setModalVisible(true) }} dateRange={dateRange} selectedDate={selectedDate} updateSelectedDate={(date, index) => { setSelectedDate(date), setDateIndex(index) }} moveToNextWeek={() => { setSelectedDate(moment(selectedDate).add(7, 'days').format("YYYY-MM-DD")) }} moveToPreviousWeek={() => { setSelectedDate(moment(selectedDate).subtract(7, 'days').format("YYYY-MM-DD")) }} />
         </View>
-      </ScrollView>
+        <View style={styles.daySelectorView}>
+          <DaySelectorComponent dateRange={dateRange} selectedDate={selectedDate} updateSelectedDate={(date, index) => { setSelectedDate(date), setDateIndex(index) }} />
+        </View>
+        <View style={styles.timeTableView}>
+          <TimeTableCarousel selectedDate={selectedDate} dateRange={dateRange} dateIndex={dateIndex} updateSelectedDate={(date, index) => {
+            setSelectedDate(date), setDateIndex(index)
+          }} />
+        </View>
+      </View>
+      {modalVisible ? 
+        <CalendarPickerModal 
+          visible={modalVisible} 
+          selectedDate={selectedDate} 
+          updateStateFromPickerModal={({dateRange}, selectedDate) =>  {
+            updateStateFromPickerModal(dateRange, selectedDate)}
+          } 
+          onClose={onClose} 
+        /> 
+      : null
+      }
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  baseContainer: {
+    flex: 1,
+    marginHorizontal: 16,
+    marginTop: 30,
+    marginBottom: 10,
+    // borderWidth: 1,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  weekSelectorView: {
+    flex: 1,
+    // borderWidth: 1,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  daySelectorView: {
+    flex: 1.5,
+    // borderWidth: 1,
   },
-  highlight: {
-    fontWeight: '700',
-  },
+  timeTableView: {
+    flex: 10,
+    // borderWidth: 1,
+  }
+
 });
 
 export default App;

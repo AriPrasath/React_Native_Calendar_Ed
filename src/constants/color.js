@@ -1,0 +1,15 @@
+export const Colors = {
+    babyBlue: "#00bfff",
+    azure:"#007FFF",
+    electricBlue:"#14A9E8",
+    white: "#fff",
+    black: "#000",
+    red: "red",
+    grey: "#DCDCDC",
+    lightYellow: "#fffee0",
+    lightSkin: "#fdf5e2",
+    lightPeach: "#ffdab9",
+    lightBLue: "#9bedff",
+    lightVintage: "#e4dacb",
+    lightRose: "#f0dc82",
+}
